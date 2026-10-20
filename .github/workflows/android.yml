@@ -1,4 +1,28 @@
 
+      - name: Corregir compatibilidad Java y Kotlin
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("source/RespuestasIA/app/build.gradle.kts")
+          s = p.read_text()
+          marker = "    buildFeatures {"
+          config = """    compileOptions {
+                  sourceCompatibility = JavaVersion.VERSION_17
+                  targetCompatibility = JavaVersion.VERSION_17
+              }
+
+              kotlinOptions {
+                  jvmTarget = "17"
+              }
+
+          """
+          if "sourceCompatibility = JavaVersion.VERSION_17" not in s:
+              if marker not in s:
+                  raise SystemExit("No se encontró el bloque buildFeatures")
+              s = s.replace(marker, config + marker, 1)
+              p.write_text(s)
+          PY
+          
 name: Generar APK Android
 
 on:
